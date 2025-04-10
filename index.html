@@ -1,107 +1,91 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>记账本登录</title>
-    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        .auth-box {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-    </style>
+  <title>记账本登录</title>
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="auth-box bg-white">
-            <h2 class="text-center mb-4">📒 记账本</h2>
-            
-            <!-- 登录表单 -->
-            <div id="login-form">
-                <div class="mb-3">
-                    <input type="email" id="email" class="form-control" placeholder="邮箱" required>
-                </div>
-                <div class="mb-3">
-                    <input type="password" id="password" class="form-control" placeholder="密码" required>
-                </div>
-                <button onclick="login()" class="btn btn-primary w-100">登录</button>
-                <div class="text-center mt-3">
-                    <a href="#" onclick="showRegister()">没有账号？立即注册</a>
-                </div>
-            </div>
-
-            <!-- 注册表单 -->
-            <div id="register-form" style="display: none;">
-                <div class="mb-3">
-                    <input type="email" id="reg-email" class="form-control" placeholder="邮箱" required>
-                </div>
-                <div class="mb-3">
-                    <input type="password" id="reg-password" class="form-control" placeholder="密码" required>
-                </div>
-                <button onclick="register()" class="btn btn-success w-100">注册</button>
-                <div class="text-center mt-3">
-                    <a href="#" onclick="showLogin()">已有账号？立即登录</a>
-                </div>
-            </div>
+  <div class="auth-container">
+    <div class="auth-box">
+      <h2><i class="bi bi-wallet2"></i> 记账本</h2>
+      
+      <!-- 登录表单 -->
+      <div id="login-form">
+        <div class="mb-3">
+          <input type="email" id="email" class="form-control" placeholder="邮箱" required>
         </div>
+        <div class="mb-3">
+          <input type="password" id="password" class="form-control" placeholder="密码" required>
+        </div>
+        <button onclick="login()" class="btn btn-primary w-100">登录</button>
+        <div class="text-center mt-3">
+          <a href="#" onclick="showRegister()">没有账号？注册</a>
+        </div>
+      </div>
+
+      <!-- 注册表单 -->
+      <div id="register-form" style="display:none;">
+        <div class="mb-3">
+          <input type="email" id="reg-email" class="form-control" placeholder="邮箱" required>
+        </div>
+        <div class="mb-3">
+          <input type="password" id="reg-password" class="form-control" placeholder="密码" required>
+        </div>
+        <button onclick="register()" class="btn btn-success w-100">注册</button>
+        <div class="text-center mt-3">
+          <a href="#" onclick="showLogin()">已有账号？登录</a>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // 初始化Supabase（替换为你的密钥）
-        const supabase = window.supabase.createClient(
-            'https://your-project.supabase.co',
-            'your-anon-key'
-        );
+  <script>
+    // 初始化Supabase（替换为您的真实key）
+    const supabase = window.supabase.createClient(
+      'https://您的项目.supabase.co',
+      '您的anon公钥'
+    );
 
-        // 表单切换
-        function showRegister() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
-        }
-        function showLogin() {
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('login-form').style.display = 'block';
-        }
+    // 表单切换
+    function showRegister() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register-form').style.display = 'block';
+    }
+    function showLogin() {
+      document.getElementById('register-form').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+    }
 
-        // 注册功能
-        async function register() {
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
+    // 注册功能
+    async function register() {
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
 
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password
-                });
-                if (error) throw error;
-                alert('注册成功！');
-                showLogin();
-            } catch (error) {
-                alert('注册失败: ' + error.message);
-            }
-        }
+      try {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        alert('注册成功！请登录');
+        showLogin();
+      } catch (error) {
+        alert('注册失败: ' + error.message);
+      }
+    }
 
-        // 登录功能
-        async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    // 登录功能
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                });
-                if (error) throw error;
-                window.location.href = 'main.html';
-            } catch (error) {
-                alert('登录失败: ' + error.message);
-            }
-        }
-    </script>
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        window.location.href = "main.html";
+      } catch (error) {
+        alert('登录失败: ' + error.message);
+      }
+    }
+  </script>
 </body>
 </html>
