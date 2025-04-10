@@ -4,320 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的记账本</title>
-    
-    <!-- 预加载关键CSS资源 -->
-    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css" as="style">
-    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" as="style">
-    
-    <!-- 使用国内CDN加速的CSS -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #4e73df;
         }
-        #loading {
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.3s ease-out;
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
         }
     </style>
-    <link rel="stylesheet" href="style.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的记账本</title>
 </head>
 <body>
-    <!-- 加载动画 -->
-    <div id="loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">加载中...</span>
-        </div>
-    </div>
-
-    <!-- 侧边栏 -->
     <div class="sidebar">
-        <div class="logo">
-            <i class="bi bi-wallet2" style="font-size: 2rem;"></i>
-            <h4>我的记账本</h4>
-        </div>
-        <ul class="nav-links">
-            <li>
-                <a href="#" class="active" id="transaction-link">
-                    <i class="bi bi-cash-stack"></i>
-                    <span>流水</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" id="report-link">
-                    <i class="bi bi-bar-chart"></i>
-                    <span>报表</span>
-                </a>
-            </li>
-        </ul>
+        <h4 class="mb-4"><i class="bi bi-wallet2"></i> 记账本</h4>
+        <button class="btn btn-light w-100 mb-3" onclick="addRecord()">
+            <i class="bi bi-plus-circle"></i> 新增记录
+        </button>
+        <button class="btn btn-danger w-100" onclick="logout()">
+            <i class="bi bi-box-arrow-left"></i> 退出登录
+        </button>
     </div>
 
-    <!-- 主内容区 -->
     <div class="main-content">
-        <!-- 流水内容区 - 默认显示 -->
-        <div id="transaction-content" class="content-section">
-            <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>记账流水</h2>
-                    <div class="d-flex align-items-center">
-                        <div class="monthly-summary me-3">
-                            <div class="d-flex align-items-center">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control date-picker" id="transaction-date-picker" placeholder="选择日期">
-                                    <button class="btn btn-sm btn-link position-absolute reset-date" id="reset-transaction-date" style="right: 0; top: 0;" title="重置日期">
-                                        <i class="bi bi-arrow-counterclockwise"></i>
-                                    </button>
-                                </div>
-                                <div class="ms-3">
-                                    <small class="text-muted">月盈亏</small>
-                                    <h4 class="mb-0" id="monthly-balance">¥0.00</h4>
-                                </div>
-                                <div class="ms-3">
-                                    <small class="text-muted">日盈亏</small>
-                                    <h4 class="mb-0" id="daily-balance">¥0.00</h4>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" id="add-record-btn">
-                            <i class="bi bi-plus-circle"></i> 记一笔
-                        </button>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="px-5">日期</th>
-                                        <th class="px-5">类型</th>
-                                        <th class="px-5">分类</th>
-                                        <th class="px-5 text-end">金额</th>
-                                        <th class="px-5">备注</th>
-                                        <th class="px-5" style="width: 150px;">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactions-list">
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-5">暂无交易记录</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 报表内容区 - 初始隐藏 -->
-        <div id="report-content" class="content-section" style="display: none;">
-            <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>财务报表</h2>
-                    <div class="d-flex align-items-center">
-                        <div class="position-relative">
-                            <input type="text" class="form-control month-picker" id="report-date-picker" placeholder="选择年月">
-                            <button class="btn btn-sm btn-link position-absolute reset-date" id="reset-report-date" style="right: 0; top: 0;" title="重置月份">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>支出分类</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="expenseChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>收入分类</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="incomeChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">账单记录</h5>
+                <table class="table" id="records-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>类型</th>
+                            <th>金额</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-body">
+                        <!-- 记录动态加载 -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 记账表单 -->
-    <div class="record-form-overlay" id="record-form-overlay" style="display: none;"></div>
-    <div class="record-form" id="record-form" style="right: -450px;">
-        <div class="record-form-header">
-            <h4 id="form-title">记一笔</h4>
-            <button class="btn-close" id="close-record-form" title="关闭表单"></button>
-        </div>
-        <div class="record-form-body">
-            <div class="mb-4">
-                <div class="btn-group w-100" role="group">
-                    <input type="radio" class="btn-check" name="record-type" id="record-type-expense" autocomplete="off" checked>
-                    <label class="btn btn-outline-danger" for="record-type-expense">支出</label>
-                    
-                    <input type="radio" class="btn-check" name="record-type" id="record-type-income" autocomplete="off">
-                    <label class="btn btn-outline-success" for="record-type-income">收入</label>
-                </div>
-            </div>
-
-            <div id="expense-form">
-                <div class="mb-4">
-                    <label class="form-label">金额</label>
-                    <div class="input-group">
-                        <span class="input-group-text">¥</span>
-                        <input type="number" class="form-control" id="expense-amount" step="0.01" min="0" placeholder="0.00">
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">分类</label>
-                    <select class="form-select" id="expense-category" aria-label="支出分类">
-                        <option value="早午晚餐">早午晚餐</option>
-                        <option value="烟酒茶">烟酒茶</option>
-                        <option value="水果零食">水果零食</option>
-                        <option value="公共交通">公共交通</option>
-                        <option value="打车租车">打车租车</option>
-                        <option value="私家车费用">私家车费用</option>
-                        <option value="日常用品">日常用品</option>
-                        <option value="水电煤气">水电煤气</option>
-                        <option value="房租">房租</option>
-                        <option value="物业管理">物业管理</option>
-                        <option value="维修保养">维修保养</option>
-                        <option value="手机费">手机费</option>
-                        <option value="上网费">上网费</option>
-                        <option value="其他支出">其他支出</option>
-                        <option value="意外丢失">意外丢失</option>
-                    </select>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">备注</label>
-                    <input type="text" class="form-control" id="expense-note" placeholder="可选">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">日期</label>
-                    <input type="datetime-local" class="form-control" id="expense-date" aria-label="支出日期">
-                </div>
-            </div>
-
-            <div id="income-form" style="display: none;">
-                <div class="mb-4">
-                    <label class="form-label">金额</label>
-                    <div class="input-group">
-                        <span class="input-group-text">¥</span>
-                        <input type="number" class="form-control" id="income-amount" step="0.01" min="0" placeholder="0.00">
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">分类</label>
-                    <select class="form-select" id="income-category" aria-label="收入分类">
-                        <option value="工资">工资</option>
-                        <option value="体彩">体彩</option>
-                        <option value="电商">电商</option>
-                        <option value="其他">其他</option>
-                    </select>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">备注</label>
-                    <input type="text" class="form-control" id="income-note" placeholder="可选">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label">日期</label>
-                    <input type="datetime-local" class="form-control" id="income-date" aria-label="收入日期">
-                </div>
-            </div>
-            
-            <input type="hidden" id="edit-id" value="">
-            <button class="btn btn-primary w-100 mt-3 py-2" id="submit-record">保存</button>
-        </div>
-    </div>
-
-    <!-- 使用国内CDN加速的JS资源 -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.js" async></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/l10n/zh.min.js"></script>
-    
     <script>
-        // 加载完成后隐藏加载动画
-        window.addEventListener('load', function() {
-            var loading = document.getElementById('loading');
-            loading.style.opacity = '0';
-            setTimeout(function() {
-                loading.style.display = 'none';
-            }, 300);
-        });
+        // 初始化Supabase（必须与index.html相同）
+        const supabase = window.supabase.createClient(
+            'https://your-project.supabase.co',
+            'your-anon-key'
+        );
 
-        // 超时处理（3秒后强制显示内容）
-        setTimeout(function() {
-            var loading = document.getElementById('loading');
-            if(loading && loading.style.display !== 'none') {
-                loading.style.opacity = '0';
-                setTimeout(function() {
-                    loading.style.display = 'none';
-                }, 300);
-            }
-        }, 3000);
-    </script>
-     <script>
-        // 新增登录验证
-        (function initAuth() {
-            const params = new URLSearchParams(window.location.search);
-            const username = params.get('user');
+        // 检查登录状态
+        async function checkLogin() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (!user) window.location.href = 'index.html';
+        }
+
+        // 加载账单数据
+        async function loadRecords() {
+            await checkLogin();
             
-            // 验证用户是否存在
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            if (!users.some(u => u.username === username)) {
-                alert('请先登录');
-                window.location.href = 'index.html';
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('加载失败:', error);
                 return;
             }
 
-            // 用户专属数据存储
-            const userTransactions = localStorage.getItem(`transactions_${username}`) || '[]';
-            window.transactions = JSON.parse(userTransactions);
+            const tbody = document.getElementById('records-body');
+            tbody.innerHTML = data.map(record => `
+                <tr>
+                    <td>${new Date(record.created_at).toLocaleDateString()}</td>
+                    <td>${record.type === 'income' ? '收入' : '支出'}</td>
+                    <td>¥${record.amount}</td>
+                    <td>${record.note || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRecord('${record.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-            // 修改保存函数
-            const originalSave = saveTransactions;
-            window.saveTransactions = function() {
-                originalSave();
-                localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
+        // 删除记录
+        async function deleteRecord(id) {
+            if (!confirm('确定删除这条记录？')) return;
+            
+            const { error } = await supabase
+                .from('transactions')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('删除失败: ' + error.message);
+            } else {
+                loadRecords();
             }
-        })();
+        }
 
-        // 原有所有记账功能代码保持不变...
+        // 退出登录
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', loadRecords);
     </script>
-    
-    <!-- 应用主JS -->
-    <script src="script.js"></script>
 </body>
 </html>
